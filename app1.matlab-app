@@ -1,0 +1,216 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<appdesigner>
+    <fileSupport>
+        <version>0.3</version>
+        <minimumRunRelease>R2023b</minimumRunRelease>
+        <minimumDesignRelease>R2023b</minimumDesignRelease>
+        <fileHash>lkmq234roin3q4f09eajv09ai8a4ijr09234f098jwefijdf</fileHash>
+    </fileSupport>
+    <matlabVersionInformation>
+        <version>9.15.0.2168168</version>
+        <release>R2023b</release>
+        <description>Prerelease</description>
+        <date>Jan 12 2023</date>
+        <checksum>1210784609</checksum>
+    </matlabVersionInformation>
+    <global>
+        <metadata>
+            <uuid>7afc782f-ff81-4200-b5bc-b637c25735e0</uuid>
+            <author><![CDATA[Danny Cuccia]]></author>
+            <description><![CDATA[an example of a plain-text XML AppDesigner file]]></description>
+            <version><![CDATA[0.1.0]]></version>
+        </metadata>
+        <callbackList>
+            <callback>
+                <type>startupFcn</type>
+                <comment><![CDATA[% Code that executes after component creation]]></comment>
+                <name><![CDATA[startupFcn]]></name>
+                <arguments><![CDATA[app, loanAmount, interestRate]]></arguments>
+                <code><![CDATA[
+        app.LoanAmountEditField.Value = loanAmount;
+        app.InterestRateEditField.Value = interestRate;
+            ]]></code>
+            </callback>
+            <callback>
+                <type>componentCallback</type>
+                <comment><![CDATA[% Changes arrangement of the app based on UIFigure width]]></comment>
+                <name><![CDATA[updateAppLayout]]></name>
+                <arguments><![CDATA[app, event]]></arguments>
+                <code><![CDATA[
+        currentFigureWidth = app.MortgageCalculatorUIFigure.Position(3);
+        if(currentFigureWidth <= app.onePanelWidth)
+            % Change to a 2x1 grid
+            app.GridLayout.RowHeight = {316, 316};
+            app.GridLayout.ColumnWidth = {'1x'};
+            app.RightPanel.Layout.Row = 2;
+            app.RightPanel.Layout.Column = 1;
+        else
+            % Change to a 1x2 grid
+            app.GridLayout.RowHeight = {'1x'};
+            app.GridLayout.ColumnWidth = {257, '1x'};
+            app.RightPanel.Layout.Row = 1;
+            app.RightPanel.Layout.Column = 2;
+        end
+            ]]></code>
+            </callback>
+            <callback>
+                <type>componentCallback</type>
+                <comment><![CDATA[% Button pushed function: MonthlyPaymentButton]]></comment>
+                <name><![CDATA[MonthlyPaymentButtonPushed]]></name>
+                <arguments><![CDATA[app, event]]></arguments>
+                <code><![CDATA[
+                 
+        % Calculate the monthly payment
+        amount = app.LoanAmountEditField.Value;
+        rate = app.InterestRateEditField.Value/12/100;
+        nper = 12*app.LoanPeriodYearsEditField.Value;
+        payment = (amount*rate)/(1-(1+rate)^-nper);
+        app.MonthlyPaymentEditField.Value = payment;
+ 
+        % pre allocating and initializing variables
+        interest = zeros(1,nper);
+        principal = zeros(1,nper);
+        balance = zeros (1,nper);
+ 
+        balance(1) = amount;
+ 
+        % Calculate the principal and interest over time
+        for i = 1:nper
+            interest(i)  = balance(i)*rate;
+            principal(i) = payment - interest(i);
+            balance(i+1) = balance(i) - principal(i);
+        end
+ 
+        % Plot the principal and interest
+        plot(app.PrincipalInterestUIAxes,(1:nper)',principal, (1:nper)',interest);
+        legend(app.PrincipalInterestUIAxes,{'Principal','Interest'},'Location','Best')
+        xlim(app.PrincipalInterestUIAxes,[0 nper]);
+        ylim(app.PrincipalInterestUIAxes,'auto');
+ 
+            ]]></code>
+            </callback>
+        </callbackList>
+        <customCode windowAssociation='' />
+        <screenshot />
+    </global>
+    <app>
+        <window id='mortgageCalculator'>
+            <metadata>
+                <description></description>
+                <screenshotMode>auto</screenshotMode>
+                <uuid>7afc782f-ff81-4200-b5bc-b637c25735e1</uuid>
+                <appType>Responsive</appType>
+                <imageRelativePaths />
+                <summary><![CDATA[This window takes in a principal loan amount and an interest rate, and plots the pay-off difference between interest and principal.]]></summary>
+                <description><![CDATA[Two required arguments, principal and interest]]></description>
+            </metadata>
+            <featureList>
+                <feature id='SingletonMode'>
+                    <value>FOCUS</value>
+                </feature>
+                <feature id='InputParameterList'>
+                    <parameter>loanAmount</parameter>
+                    <parameter>interestRate</parameter>
+                </feature>
+                <feature id="RunConfigurationList">
+                    <runConfiguration><![CDATA[300000, 4.5]]></runConfiguration>
+                    <runConfiguration><![CDATA[450000, 5.9]]></runConfiguration>
+                    <runConfiguration><![CDATA[650000, 3.2]]></runConfiguration>
+                </feature>
+            </featureList>
+            <uifigure
+                CodeName='MortgageCalculatorUIFigure'
+                AutoResizeChildren='"off"'
+                Position='[100 100 653 316]'
+                Name='"Mortgage Calculator"'
+                SizeChangedFcn='updateAppLayout'>
+                <matlab.ui.container.GridLayout
+                    CodeName='GridLayout'
+                    ColumnWidth='{257, "1x"}'
+                    RowHeight='"1x"'
+                    ColumnSpacing='0'
+                    RowSpacing='0'
+                    Padding='[0 0 0 0]'
+                    Scrollable='"on"'>
+                    <matlab.ui.container.Panel
+                        CodeName='LeftPanel'
+                        Layout.Row='1'
+                        Layout.Column='1'
+                        Scrollable='on'>
+                        <matlab.ui.control.Label
+                            CodeName='LoanAmountEditFieldLabel'
+                            HorizontalAlignment='"right"'
+                            Position='[50 230 77 22]'
+                            Text='"Loan Amount"' />
+                        <matlab.ui.control.NumericEditField
+                            CodeName='LoanAmountEditField'
+                            Limits='[0 10000000]'
+                            ValueDisplayFormat='"%8.f"'
+                            Position='[142 230 100 22]'
+                            Value='300000' />
+                        <matlab.ui.control.Label
+                            CodeName='InterestRateEditFieldLabel'
+                            HorizontalAlignment='"right"'
+                            Position='[39 177 88 22]'
+                            Text='"Interest Rate %"' />
+                        <matlab.ui.control.NumericEditField
+                            CodeName='InterestRateEditField'
+                            Limits='[0.001 100]'
+                            Position='[142 177 100 22]'
+                            Value='4' />
+                        <matlab.ui.control.Label
+                            CodeName='LoanPeriodYearsEditFieldLabel'
+                            HorizontalAlignment='"right"'
+                            Position='[15 124 112 22]'
+                            Text='"Loan Period (Years)"' />
+                        <matlab.ui.control.NumericEditField
+                            CodeName='LoanPeriodYearsEditField'
+                            Limits='[10 40]'
+                            ValueDisplayFormat='"%.0f"'
+                            Position='[142 124 100 22]'
+                            Value='30' />
+                        <matlab.ui.control.Button
+                            CodeName='MonthlyPaymentButton'
+                            ButtonPushedFcn='MonthlyPaymentButtonPushed'
+                            Position='[19 71 108 22]'
+                            Text='"Monthly Payment"' />
+                        <matlab.ui.control.NumericEditField
+                            CodeName='MonthlyPaymentEditField'
+                            ValueDisplayFormat='"%7.2f"'
+                            Editable='"off"'
+                            Position='[142 71 100 22]' />
+                    </matlab.ui.container.Panel>
+                    <matlab.ui.container.Panel
+                        CodeName='RightPanel'
+                        Layout.Row='1'
+                        Layout.Column='2'
+                        Scrollable='"on"'>
+                        <matlab.ui.control.UIAxes
+                            CodeName='PrincipalInterestUIAxes'
+                            title='"Principal and Interest"'
+                            xlabel='"Time (Months)"'
+                            ylabel='"Amount"'
+                            XTickLabelRotation='0'
+                            YTickLabelRotation='0'
+                            ZTickLabelRotation='0'
+                            Position='[30 36 326 250]' />
+                    </matlab.ui.container.Panel>
+                </matlab.ui.container.GridLayout>
+            </uifigure>
+            <groupList>
+                <group id='XJ1X95'>
+                    <member key='CodeName'>LoanAmountEditFieldLabel</member>
+                    <member key='CodeName'>LoanAmountEditField</member>
+                </group>
+                <group id='K5MS90'>
+                    <member key='CodeName'>InterestRateEditFieldLabel</member>
+                    <member key='CodeName'>InterestRateEditField</member>
+                </group>
+                <group id='U91ZB5'>
+                    <member key='CodeName'>LoanPeriodYearsEditFieldLabel</member>
+                    <member key='CodeName'>LoanPeriodYearsEditField</member>
+                </group>
+            </groupList>
+        </window>
+    </app>
+</appdesigner>
