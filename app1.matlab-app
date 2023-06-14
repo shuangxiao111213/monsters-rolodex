@@ -2,7 +2,7 @@
 <appdesigner>
     <fileSupport>
         <version>0.3</version>
-        <minimumRunRelease>R2023b</minimumRunRelease>
+        <minimumRunRelease>R2025a</minimumRunRelease>
         <minimumDesignRelease>R2023b</minimumDesignRelease>
         <fileHash>lkmq234roin3q4f09eajv09ai8a4ijr09234f098jwefijdf</fileHash>
     </fileSupport>
@@ -40,10 +40,8 @@
         currentFigureWidth = app.MortgageCalculatorUIFigure.Position(3);
         if(currentFigureWidth <= app.onePanelWidth)
             % Change to a 2x1 grid
-            app.GridLayout.RowHeight = {316, 316};
+            app.GridLayout.RowHeight = {316, 425};
             app.GridLayout.ColumnWidth = {'1x'};
-            app.RightPanel.Layout.Row = 2;
-            app.RightPanel.Layout.Column = 1;
         else
             % Change to a 1x2 grid
             app.GridLayout.RowHeight = {'1x'};
@@ -69,10 +67,9 @@
  
         % pre allocating and initializing variables
         interest = zeros(1,nper);
+        balance(1) = amount;
         principal = zeros(1,nper);
         balance = zeros (1,nper);
- 
-        balance(1) = amount;
  
         % Calculate the principal and interest over time
         for i = 1:nper
